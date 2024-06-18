@@ -7,7 +7,6 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import java.util.Random;
-import java.util.random.*;
 
 public class GamePanel extends JPanel implements ActionListener {
 
@@ -15,10 +14,10 @@ public class GamePanel extends JPanel implements ActionListener {
     static final int SCREEN_HEIGHT = 600;
     static final int UNIT_SIZE = 25;
     static final int GAME_UNITS = (SCREEN_HEIGHT*SCREEN_WIDTH)/UNIT_SIZE;
-    static final int DELAY = 75;
+    static final int DELAY = 100;
 
-    final int x[] = new int [GAME_UNITS];
-    final int y[] = new int [GAME_UNITS];
+    final int[] x = new int [GAME_UNITS];
+    final int[] y = new int [GAME_UNITS];
     int bodyParts = 6;
     int applesEaten;
     int appleX;
@@ -108,7 +107,7 @@ public class GamePanel extends JPanel implements ActionListener {
     }
     public void checkCollisions(){
         for (int i = bodyParts; i>0; i--){
-            if ((x[0] == x[i]) && (y[0] == y[i])){
+            if ((x[0] == x[i]) && (y[0] == y[i])) {
                 running = false;
             }
         }
@@ -124,24 +123,39 @@ public class GamePanel extends JPanel implements ActionListener {
         if (y[0] > SCREEN_HEIGHT){
             running = false;
         }
-
         if (!running){
             timer.stop();
         }
     }
     public void gameOver(Graphics g){
-        g.setColor(Color.red);
+        g.setColor(Color.GRAY);
         g.setFont(new Font("Serif", Font.BOLD, 75));
         FontMetrics metrics = getFontMetrics(g.getFont());
         g.drawString("Game Over", (SCREEN_WIDTH - metrics.stringWidth("Game Over"))/2, SCREEN_HEIGHT/2);
-        g.setColor(Color.red);
         g.setFont(new Font("Serif", Font.PLAIN, 30));
         FontMetrics metrics2 = getFontMetrics(g.getFont());
         g.drawString("Score: " + applesEaten, (SCREEN_WIDTH - metrics2.stringWidth("Score: " + applesEaten))/2, g.getFont().getSize());
+        g.setFont(new Font("Serif", Font.PLAIN, 30));
+        FontMetrics metrics3 = getFontMetrics(g.getFont());
+        g.drawString("Press Spacebar to restart", (SCREEN_WIDTH - metrics3.stringWidth("Press Spacebar to restart"))/2, SCREEN_HEIGHT - 150);
     }
 
+    public void restartGame(){
+        bodyParts = 6;
+        applesEaten = 0;
+        direction = 'R';
+        for (int i = 0; i < bodyParts; i++) {
+            x[i] = 0;
+            y[i] = 0;
+        }
+        newApple();
+        running = true;
+        timer.restart();
+        requestFocusInWindow();
+
+    }
     @Override
-    public void actionPerformed(ActionEvent er) {
+    public void actionPerformed(ActionEvent e) {
         if (running){
             move();
             apple();
@@ -171,6 +185,11 @@ public class GamePanel extends JPanel implements ActionListener {
                 case KeyEvent.VK_DOWN:
                     if (direction!= 'U') {
                         direction = 'D';
+                    }
+                    break;
+                case KeyEvent.VK_SPACE:
+                    if (!running) {
+                        restartGame();
                     }
                     break;
             }
