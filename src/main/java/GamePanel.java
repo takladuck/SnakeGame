@@ -23,6 +23,7 @@ public class GamePanel extends JPanel implements ActionListener {
     final int[] y = new int [GAME_UNITS];
     int bodyParts = 6;
     int applesEaten;
+    int highscore;
     int appleX;
     int appleY;
     char direction = 'R';
@@ -151,6 +152,7 @@ public class GamePanel extends JPanel implements ActionListener {
         }
     }
     public void gameOver(Graphics g){
+        if(applesEaten>highscore){ highscore = applesEaten;}
         if (clip != null) {
             clip.stop();
         }
@@ -173,6 +175,10 @@ public class GamePanel extends JPanel implements ActionListener {
         g.setFont(new Font("Serif", Font.PLAIN, 30));
         FontMetrics metrics3 = getFontMetrics(g.getFont());
         g.drawString("Press Spacebar to restart", (SCREEN_WIDTH - metrics3.stringWidth("Press Spacebar to restart"))/2, SCREEN_HEIGHT - 150);
+        g.setColor(Color.red);
+        g.setFont(new Font("Serif", Font.PLAIN, 30));
+        FontMetrics metrics4 = getFontMetrics(g.getFont());
+        g.drawString("High Score: " + highscore, (SCREEN_WIDTH - metrics4.stringWidth("High Score: " + highscore))/2, 70);
     }
 
     public void restartGame(){
