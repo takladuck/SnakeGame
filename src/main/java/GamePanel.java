@@ -6,6 +6,9 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+import javax.sound.sampled.*;
+import java.io.*;
+
 import java.util.Random;
 
 public class GamePanel extends JPanel implements ActionListener {
@@ -26,8 +29,10 @@ public class GamePanel extends JPanel implements ActionListener {
     boolean running = false;
     Timer timer;
     Random random;
+    Clip clip;
 
-    GamePanel(){
+
+    GamePanel() {
         random = new Random();
         this.setPreferredSize(new Dimension(SCREEN_WIDTH,SCREEN_HEIGHT));
         this.setBackground(Color.black);
@@ -35,8 +40,20 @@ public class GamePanel extends JPanel implements ActionListener {
         this.addKeyListener(new MyKeyAdapter());
         startGame();
     }
+    public void bgmusic(){
+        try {
+            AudioInputStream aud = AudioSystem.getAudioInputStream(new File("D://skull/prjt/snakejava/res/audio/bgretro.wav"));
+            clip = AudioSystem.getClip();
+            clip.open(aud);
+            clip.loop(Clip.LOOP_CONTINUOUSLY);
+
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public void startGame(){
+        bgmusic();
         newApple();
         running = true;
         timer = new Timer(DELAY,this);
@@ -48,10 +65,6 @@ public class GamePanel extends JPanel implements ActionListener {
     }
     public void draw (Graphics g){
         if (running) {
-            for (int i = 0; i < SCREEN_HEIGHT / UNIT_SIZE; i++) {
-                g.drawLine(i * UNIT_SIZE, 0, i * UNIT_SIZE, SCREEN_HEIGHT);
-                g.drawLine(0, i * UNIT_SIZE, SCREEN_WIDTH, i * UNIT_SIZE);
-            }
             g.setColor(Color.cyan);
             g.fillOval(appleX, appleY, UNIT_SIZE, UNIT_SIZE);
 
@@ -59,7 +72,8 @@ public class GamePanel extends JPanel implements ActionListener {
                 if (i == 0) {
                     g.setColor(Color.green);
                     g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
-                } else {
+                }
+                else {
                     g.setColor(new Color(45, 180, 0));
                     g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
                 }
@@ -100,6 +114,15 @@ public class GamePanel extends JPanel implements ActionListener {
     }
     public void apple(){
         if((x[0] == appleX) && (y[0] == appleY)){
+            try {
+                AudioInputStream aud = AudioSystem.getAudioInputStream(new File("D://skull/prjt/snakejava/res/audio/bell.wav"));
+                Clip clip = AudioSystem.getClip();
+                clip.open(aud);
+                clip.loop(0);
+
+            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+                throw new RuntimeException(e);
+            }
             bodyParts++;
             applesEaten++;
             newApple();
@@ -112,22 +135,34 @@ public class GamePanel extends JPanel implements ActionListener {
             }
         }
         if (x[0] < 0){
-            running = false;
+            x[0] = SCREEN_WIDTH;
         }
         if (x[0] > SCREEN_WIDTH){
-            running = false;
+            x[0] = 0;
         }
         if (y[0] < 0){
-            running = false;
+            y[0] = SCREEN_HEIGHT;
         }
         if (y[0] > SCREEN_HEIGHT){
-            running = false;
+            y[0] = 0;
         }
         if (!running){
             timer.stop();
         }
     }
     public void gameOver(Graphics g){
+        if (clip != null) {
+            clip.stop();
+        }
+        try {
+            AudioInputStream aud = AudioSystem.getAudioInputStream(new File("D://skull/prjt/snakejava/res/audio/gameover.wav"));
+            Clip clip = AudioSystem.getClip();
+            clip.open(aud);
+            clip.loop(0);
+
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+            throw new RuntimeException(e);
+        }
         g.setColor(Color.GRAY);
         g.setFont(new Font("Serif", Font.BOLD, 75));
         FontMetrics metrics = getFontMetrics(g.getFont());
@@ -141,6 +176,7 @@ public class GamePanel extends JPanel implements ActionListener {
     }
 
     public void restartGame(){
+        bgmusic();
         bodyParts = 6;
         applesEaten = 0;
         direction = 'R';
@@ -193,6 +229,6 @@ public class GamePanel extends JPanel implements ActionListener {
                     }
                     break;
             }
-            }
         }
     }
+}
